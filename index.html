@@ -388,6 +388,44 @@
     z-index: 1;
   }
 
+  /* ---------- VIBES ---------- */
+  .vibes {
+    background: linear-gradient(180deg, #fff 0%, var(--cream) 100%);
+    padding: 80px 0;
+  }
+
+  .vibes-grid {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .vibe-card {
+    flex: 1 1 300px;
+    max-width: 420px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    background: var(--white);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+  }
+
+  .vibe-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-strong);
+  }
+
+  .vibe-card video {
+    width: 100%;
+    height: auto;
+    display: block;
+    background: var(--sea);
+  }
+
   /* ---------- ADVENT CALENDAR ---------- */
   .advent {
     background: linear-gradient(180deg, #fff 0%, #fff2d6 100%);
@@ -951,6 +989,25 @@
         <h3>Лиза</h3>
         <div class="crew-role">Главная по «давайте просто полежим»</div>
         <p class="crew-desc">Уже морально в море. На любой вопрос про насыщенный день отвечает «или может на пляж?». В этой логике обычно оказывается права.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIBES -->
+<section class="vibes reveal">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Превью вайба</div>
+      <h2>Примерно такое настроение</h2>
+    </div>
+
+    <div class="vibes-grid">
+      <div class="vibe-card">
+        <video src="vibe-1.mp4" autoplay loop muted playsinline preload="metadata"></video>
+      </div>
+      <div class="vibe-card">
+        <video src="vibe-2.mp4" autoplay loop muted playsinline preload="metadata"></video>
       </div>
     </div>
   </div>
