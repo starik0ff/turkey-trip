@@ -406,10 +406,11 @@
   .vibe-card {
     flex: 1 1 300px;
     max-width: 420px;
+    aspect-ratio: 3 / 4;
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow);
-    background: var(--white);
+    background: var(--sea);
     transition: transform 0.4s ease, box-shadow 0.4s ease;
     position: relative;
   }
@@ -421,9 +422,9 @@
 
   .vibe-card video {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
-    background: var(--sea);
   }
 
   /* ---------- ADVENT CALENDAR ---------- */
