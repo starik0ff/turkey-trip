@@ -21,7 +21,8 @@ jobs:
           msk = timezone(timedelta(hours=3))
           target = datetime(2026, 9, 6, 0, 0, 0, tzinfo=msk)
           now = datetime.now(msk)
-          days = (target.date() - now.date()).days
+          diff = target - now
+          days = diff.days  # floor of total days (matches the website countdown)
 
           site = "https://starik0ff.github.io/turkey-trip/"
 
@@ -33,7 +34,10 @@ jobs:
               if 2 <= n <= 4: return "дня"
               return "дней"
 
-          if days > 0:
+          on_trip_day = now.date() == target.date()
+          past_trip   = now.date() > target.date()
+
+          if not on_trip_day and not past_trip and days >= 1:
               templates = [
                   "🌴 Доброе утро, экипаж. До Турции <b>{d} {w}</b>.\nЭто меньше, чем было вчера. Это математика.",
                   "☀️ До 6 сентября осталось <b>{d} {w}</b>.\nМоре стало на сутки ближе. Чемоданы пока делают вид, что их это не касается.",
@@ -48,10 +52,14 @@ jobs:
               ]
               text = random.choice(templates).format(d=days, w=word(days), br=days)
               text += f"\n\nТаймер: {site}"
-          elif days == 0:
+          elif on_trip_day:
               text = f"🎉 <b>СЕГОДНЯ.</b>\nТурция, мы идём. Паспорта, билеты, шлёпки — три раза проверили? Точно?\n\n{site}"
+          elif past_trip:
+              gone = (now.date() - target.date()).days
+              text = f"🐚 Отпуск идёт уже {gone} {word(gone)}. Кто-то забыл выключить этот воркфлоу. Это нормально."
           else:
-              text = f"🐚 Отпуск идёт уже {-days} {word(days)}. Кто-то забыл выключить этот воркфлоу. Это нормально."
+              # less than 24h left, but still on Sept 5
+              text = f"✈️ <b>ЗАВТРА.</b>\nПоследний день «до». Чемоданы знают.\n\n{site}"
 
           token = os.environ["TG_BOT_TOKEN"]
           chat  = os.environ["TG_CHAT_ID"]
