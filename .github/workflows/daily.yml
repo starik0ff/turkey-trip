@@ -1,0 +1,72 @@
+name: Daily Turkey countdown
+
+on:
+  schedule:
+    - cron: "0 7 * * *"  # 10:00 MSK (07:00 UTC) every day
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose and send
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          python3 - <<'PY'
+          import os, json, random, urllib.parse, urllib.request
+          from datetime import datetime, timezone, timedelta
+
+          msk = timezone(timedelta(hours=3))
+          target = datetime(2026, 9, 6, 0, 0, 0, tzinfo=msk)
+          now = datetime.now(msk)
+          days = (target.date() - now.date()).days
+
+          site = "https://starik0ff.github.io/turkey-trip/"
+
+          def word(n):
+              n = abs(n) % 100
+              if 11 <= n <= 14: return "дней"
+              n %= 10
+              if n == 1: return "день"
+              if 2 <= n <= 4: return "дня"
+              return "дней"
+
+          if days > 0:
+              templates = [
+                  "🌴 Доброе утро, экипаж. До Турции <b>{d} {w}</b>.\nЭто меньше, чем было вчера. Это математика.",
+                  "☀️ До 6 сентября осталось <b>{d} {w}</b>.\nМоре стало на сутки ближе. Чемоданы пока делают вид, что их это не касается.",
+                  "🧳 Минус один день. До отпуска — <b>{d} {w}</b>.\nИгорь снова уверяет, что соберётся за вечер. Конечно.",
+                  "🌊 До Турции <b>{d} {w}</b>.\nЭто примерно {br} завтраков и слишком много рабочих созвонов.",
+                  "🩴 До вылета <b>{d} {w}</b>.\nЛиза, по нашим данным, уже морально в море.",
+                  "🍉 До отпуска <b>{d} {w}</b>.\nЕгор делает вид, что не планирует. Спойлер: маршрут на первые 3 дня у него уже есть.",
+                  "📸 До Турции <b>{d} {w}</b>.\nНастя считает skincare. Если получится больше чемодана — берём оба.",
+                  "🥐 Доброе утро. До отпуска <b>{d} {w}</b>.\nСегодня ещё можно сделать вид, что всё под контролем.",
+                  "🛫 До 6 сентября — <b>{d} {w}</b>.\nЧемодан официально перешёл из стадии «потом» в стадию «ладно, скоро».",
+                  "🌅 Ещё один день вычеркнут. Осталось <b>{d} {w}</b>.\nОтпуск приближается, и это не лечится.",
+              ]
+              text = random.choice(templates).format(d=days, w=word(days), br=days)
+              text += f"\n\nТаймер: {site}"
+          elif days == 0:
+              text = f"🎉 <b>СЕГОДНЯ.</b>\nТурция, мы идём. Паспорта, билеты, шлёпки — три раза проверили? Точно?\n\n{site}"
+          else:
+              text = f"🐚 Отпуск идёт уже {-days} {word(days)}. Кто-то забыл выключить этот воркфлоу. Это нормально."
+
+          token = os.environ["TG_BOT_TOKEN"]
+          chat  = os.environ["TG_CHAT_ID"]
+          url = f"https://api.telegram.org/bot{token}/sendMessage"
+          data = urllib.parse.urlencode({
+              "chat_id": chat,
+              "parse_mode": "HTML",
+              "disable_web_page_preview": "true",
+              "text": text,
+          }).encode()
+
+          req = urllib.request.Request(url, data=data)
+          with urllib.request.urlopen(req, timeout=15) as r:
+              resp = json.loads(r.read())
+              print(json.dumps(resp, ensure_ascii=False, indent=2))
+              if not resp.get("ok"):
+                  raise SystemExit(1)
+          PY
